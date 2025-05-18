@@ -315,12 +315,6 @@
         let playerY = GAME_HEIGHT / 2 - PLAYER_HEIGHT / 2;
         let playerSpeed = 5;
         let keysPressed = {};
-
-         // Новые параметры для плавного управления
-        const PLAYER_ACCELERATION = 0.2;
-        const PLAYER_MAX_SPEED = 5;
-        const PLAYER_FRICTION = 0.1;
-        let playerVelocity = 0;
         
         // Инициализация игры
         function init() {
@@ -387,15 +381,15 @@
             generateInitialWalls();
         }
         
-       // Игровой цикл с плавным управлением
+        // Игровой цикл
         function gameLoop() {
             if (!gameActive || isPaused) {
                 animationId = requestAnimationFrame(gameLoop);
                 return;
             }
             
-            // Обработка управления с плавностью
-            handleSmoothControls();
+            // Обработка управления
+            handleControls();
             
             // Движение фона
             backgroundPosition = (backgroundPosition + backgroundSpeed) % GAME_WIDTH;
@@ -434,30 +428,14 @@
             animationId = requestAnimationFrame(gameLoop);
         }
         
-       function handleSmoothControls() {
-            // Применяем ускорение при нажатии клавиш
-            if (keysPressed['w'] || keysPressed['ц']) { // Вверх
-                playerVelocity -= PLAYER_ACCELERATION;
+        // Обработка управления
+        function handleControls() {
+            if (keysPressed['w'] || keysPressed['ц']) { // W или Ц (русская раскладка)
+                playerY = Math.max(0, playerY - playerSpeed);
             }
-            if (keysPressed['s'] || keysPressed['ы']) { // Вниз
-                playerVelocity += PLAYER_ACCELERATION;
+            if (keysPressed['s'] || keysPressed['ы']) { // S или Ы (русская раскладка)
+                playerY = Math.min(GAME_HEIGHT - PLAYER_HEIGHT, playerY + playerSpeed);
             }
-            
-            // Ограничение максимальной скорости
-            playerVelocity = Math.max(-PLAYER_MAX_SPEED, Math.min(PLAYER_MAX_SPEED, playerVelocity));
-            
-            // Применяем "трение" для плавного замедления
-            if (!(keysPressed['w'] || keysPressed['ц'] || keysPressed['s'] || keysPressed['ы'])) {
-                if (playerVelocity > 0) {
-                    playerVelocity = Math.max(0, playerVelocity - PLAYER_FRICTION);
-                } else if (playerVelocity < 0) {
-                    playerVelocity = Math.min(0, playerVelocity + PLAYER_FRICTION);
-                }
-            }
-            
-            // Обновляем позицию с учетом скорости
-            playerY += playerVelocity;
-            playerY = Math.max(0, Math.min(GAME_HEIGHT - PLAYER_HEIGHT, playerY));
             
             updatePlayerPosition();
         }

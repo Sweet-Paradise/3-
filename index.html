@@ -118,7 +118,7 @@
         
         .player {
             position: absolute;
-            width: 60px; /* Размер квадрокоптера */
+            width: 60px;
             height: 40px;
             background-image: url('img/drone.png');
             background-size: contain;
@@ -132,7 +132,7 @@
         .wall {
             position: absolute;
             width: 50px;
-            background-color: #8B4513; /* Кирпичный цвет */
+            background-color: #8B4513;
             background-image: linear-gradient(45deg, #8B4513 25%, #A0522D 25%, #A0522D 50%, #8B4513 50%, #8B4513 75%, #A0522D 75%, #A0522D 100%);
             background-size: 20px 20px;
             z-index: 10;
@@ -249,7 +249,6 @@
                 <div>Заряд: <span id="power-level">50%</span></div>
             </div>
             <div class="player"></div>
-            <!-- Стены и батарейки будут добавляться динамически -->
         </div>
     </div>
     
@@ -269,7 +268,6 @@
     </div>
 
     <script>
-
         // Константы игры
         const GAME_WIDTH = 800;
         const GAME_HEIGHT = 600;
@@ -279,9 +277,9 @@
         const BATTERY_WIDTH = 30;
         const BATTERY_HEIGHT = 50;
         const WALL_GAP = 300;
-        const POWER_DECREASE_INTERVAL = 1000; // 1 секунда
-        const POWER_DECREASE_AMOUNT = 1; // 1% в секунду
-        const POWER_INCREASE_AMOUNT = 5; // 5% за батарейку
+        const POWER_DECREASE_INTERVAL = 1000;
+        const POWER_DECREASE_AMOUNT = 1;
+        const POWER_INCREASE_AMOUNT = 5;
         
         // Элементы DOM
         const welcomeScreen = document.querySelector('.welcome-screen');
@@ -318,26 +316,22 @@
         
         // Инициализация игры
         function init() {
-            // Обработчики событий для экрана приветствия
             playerNameInput.addEventListener('input', function() {
                 startBtn.disabled = this.value.trim() === '';
             });
             
             startBtn.addEventListener('click', startGame);
             
-            // Обработчики для кнопок рестарта
             restartBtns.forEach(btn => {
                 btn.addEventListener('click', restartGame);
             });
             
-            // Обработчик клавиши ESC для паузы
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && gameActive) {
                     togglePause();
                 }
             });
             
-            // Обработчики управления игроком
             document.addEventListener('keydown', function(e) {
                 if (!gameActive || isPaused) return;
                 
@@ -351,7 +345,6 @@
             });
         }
         
-        // Начать игру
         function startGame() {
             playerName = playerNameInput.value.trim();
             if (!playerName) return;
@@ -368,76 +361,59 @@
             updatePowerDisplay();
             updateTimeDisplay();
             
-            // Очищаем игровое поле
             document.querySelectorAll('.wall, .battery, .explosion, .charge-effect').forEach(el => el.remove());
             
-            // Переключаем экраны
             switchScreen(welcomeScreen, gameScreen);
             
-            // Запускаем игру
             gameActive = true;
             isPaused = false;
             
-            // Таймеры
             timer = setInterval(updateGameTime, 1000);
             powerTimer = setInterval(decreasePower, POWER_DECREASE_INTERVAL);
             
-            // Запускаем игровой цикл
             animationId = requestAnimationFrame(gameLoop);
             
-            // Генерируем первые стены и батарейки
             generateInitialWalls();
         }
         
-        // Игровой цикл
         function gameLoop() {
             if (!gameActive || isPaused) return;
             
-            // Движение фона
             backgroundPosition = (backgroundPosition + backgroundSpeed) % GAME_WIDTH;
             background.style.transform = `translateX(-${backgroundPosition}px)`;
             
-            // Движение стен
             walls.forEach(wall => {
                 wall.x -= backgroundSpeed;
                 wall.element.style.left = `${wall.x}px`;
                 
-                // Удаляем стены, которые вышли за пределы экрана
                 if (wall.x + WALL_WIDTH < 0) {
                     wall.element.remove();
                     walls = walls.filter(w => w !== wall);
                 }
             });
             
-            // Движение батареек
             batteries.forEach(battery => {
                 battery.x -= backgroundSpeed;
                 battery.element.style.left = `${battery.x}px`;
                 
-                // Удаляем батарейки, которые вышли за пределы экрана
                 if (battery.x + BATTERY_WIDTH < 0) {
                     battery.element.remove();
                     batteries = batteries.filter(b => b !== battery);
                 }
             });
             
-            // Проверка столкновений
             checkCollisions();
-            
-            // Генерация новых стен и батареек
             generateWallsAndBatteries();
             
             animationId = requestAnimationFrame(gameLoop);
         }
         
-        // Генерация начальных стен
         function generateInitialWalls() {
             for (let x = GAME_WIDTH; x < GAME_WIDTH * 2; x += WALL_GAP) {
                 generateWall(x);
             }
         }
         
-        // Генерация стен и батареек
         function generateWallsAndBatteries() {
             const lastWall = walls[walls.length - 1];
             
@@ -445,7 +421,6 @@
                 const newX = lastWall ? lastWall.x + WALL_GAP : GAME_WIDTH;
                 generateWall(newX);
                 
-                // С шансом 70% генерируем батарейку между стенами
                 if (Math.random() < 0.7 && walls.length > 1) {
                     const prevWall = walls[walls.length - 2];
                     const batteryX = prevWall.x + WALL_WIDTH + (newX - (prevWall.x + WALL_WIDTH)) / 2 - BATTERY_WIDTH / 2;
@@ -454,7 +429,6 @@
             }
         }
         
-        // Генерация стены
         function generateWall(x) {
             const wallHeight = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
             const isTopWall = Math.random() < 0.5;
@@ -476,22 +450,16 @@
             });
         }
         
-        // Генерация батарейки
         function generateBattery(x) {
-            // Генерируем Y-координату, избегая стен
             let y;
             const lastWall = walls[walls.length - 1];
-            const prevWall = walls[walls.length - 2];
             
             if (lastWall.isTop) {
-                // Последняя стена сверху - батарейка снизу
                 y = GAME_HEIGHT - BATTERY_HEIGHT - 20;
             } else {
-                // Последняя стена снизу - батарейка сверху
                 y = 20;
             }
             
-            // Добавляем случайность
             y += (Math.random() - 0.5) * 100;
             y = Math.max(20, Math.min(y, GAME_HEIGHT - BATTERY_HEIGHT - 20));
             
@@ -511,7 +479,6 @@
             });
         }
         
-        // Проверка столкновений
         function checkCollisions() {
             const playerRect = {
                 left: 50,
@@ -520,7 +487,6 @@
                 bottom: playerY + PLAYER_HEIGHT
             };
             
-            // Проверка столкновений со стенами
             for (const wall of walls) {
                 const wallRect = {
                     left: wall.x,
@@ -535,7 +501,6 @@
                 }
             }
             
-            // Проверка сбора батареек
             for (let i = 0; i < batteries.length; i++) {
                 const battery = batteries[i];
                 const batteryRect = {
@@ -546,23 +511,19 @@
                 };
                 
                 if (checkRectCollision(playerRect, batteryRect)) {
-                    // Анимация подзарядки
                     const chargeEffect = document.createElement('div');
                     chargeEffect.className = 'charge-effect';
                     chargeEffect.style.left = `${playerRect.left - 20}px`;
                     chargeEffect.style.top = `${playerRect.top - 30}px`;
                     gameContainer.appendChild(chargeEffect);
                     
-                    // Удаляем эффект через 500мс
                     setTimeout(() => {
                         chargeEffect.remove();
                     }, 500);
                     
-                    // Удаляем батарейку
                     battery.element.remove();
                     batteries.splice(i, 1);
                     
-                    // Увеличиваем заряд
                     power = Math.min(100, power + POWER_INCREASE_AMOUNT);
                     updatePowerDisplay();
                     
@@ -571,7 +532,6 @@
             }
         }
         
-        // Проверка пересечения прямоугольников
         function checkRectCollision(rect1, rect2) {
             return rect1.left < rect2.right && 
                    rect1.right > rect2.left && 
@@ -579,43 +539,35 @@
                    rect1.bottom > rect2.top;
         }
         
-        // Анимация крушения квадрокоптера
         function crashDrone(x, y) {
             gameActive = false;
             
-            // Создаем анимацию взрыва
             const explosion = document.createElement('div');
             explosion.className = 'explosion';
             explosion.style.left = `${x}px`;
             explosion.style.top = `${y}px`;
             gameContainer.appendChild(explosion);
             
-            // Удаляем взрыв через 500мс
             setTimeout(() => {
                 explosion.remove();
             }, 500);
             
-            // Останавливаем игру
             endGame(false);
         }
         
-        // Обновление позиции игрока
         function updatePlayerPosition() {
             player.style.top = `${playerY}px`;
         }
         
-        // Обновление отображения времени
         function updateTimeDisplay() {
             const minutes = Math.floor(time / 60).toString().padStart(2, '0');
             const seconds = (time % 60).toString().padStart(2, '0');
             gameTime.textContent = `${minutes}:${seconds}`;
         }
         
-        // Обновление отображения заряда
         function updatePowerDisplay() {
             powerLevel.textContent = `${power}%`;
             
-            // Меняем цвет в зависимости от уровня заряда
             if (power < 20) {
                 powerLevel.style.color = 'red';
             } else if (power < 50) {
@@ -625,7 +577,6 @@
             }
         }
         
-        // Уменьшение заряда
         function decreasePower() {
             if (isPaused) return;
             
@@ -637,7 +588,6 @@
             }
         }
         
-        // Обновление игрового времени
         function updateGameTime() {
             if (isPaused) return;
             
@@ -645,13 +595,11 @@
             updateTimeDisplay();
         }
         
-        // Переключение экранов
         function switchScreen(fromScreen, toScreen) {
             fromScreen.classList.remove('active');
             toScreen.classList.add('active');
         }
         
-        // Завершение игры
         function endGame(success) {
             gameActive = false;
             clearInterval(timer);
@@ -667,14 +615,12 @@
             }
         }
         
-        // Перезапуск игры
         function restartGame() {
             switchScreen(resultScreen, gameScreen);
             switchScreen(gameoverScreen, gameScreen);
             startGame();
         }
         
-        // Пауза/продолжение игры
         function togglePause() {
             isPaused = !isPaused;
             
@@ -689,7 +635,6 @@
             }
         }
         
-        // Инициализация игры при загрузке страницы
         window.addEventListener('load', init);
     </script>
 </body>

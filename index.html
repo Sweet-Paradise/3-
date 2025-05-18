@@ -479,58 +479,63 @@
             });
         }
         
-        function checkCollisions() {
-            const playerRect = {
-                left: 50,
-                right: 50 + PLAYER_WIDTH,
-                top: playerY,
-                bottom: playerY + PLAYER_HEIGHT
-            };
-            
-            for (const wall of walls) {
-                const wallRect = {
-                    left: wall.x,
-                    right: wall.x + WALL_WIDTH,
-                    top: wall.isTop ? 0 : GAME_HEIGHT - wall.height,
-                    bottom: wall.isTop ? wall.height : GAME_HEIGHT
-                };
-                
-                if (checkRectCollision(playerRect, wallRect)) {
-                    crashDrone(wall.x, playerY);
-                    return;
-                }
-            }
-            
-            for (let i = 0; i < batteries.length; i++) {
-                const battery = batteries[i];
-                const batteryRect = {
-                    left: battery.x,
-                    right: battery.x + BATTERY_WIDTH,
-                    top: battery.y,
-                    bottom: battery.y + BATTERY_HEIGHT
-                };
-                
-                if (checkRectCollision(playerRect, batteryRect)) {
-                    const chargeEffect = document.createElement('div');
-                    chargeEffect.className = 'charge-effect';
-                    chargeEffect.style.left = `${playerRect.left - 20}px`;
-                    chargeEffect.style.top = `${playerRect.top - 30}px`;
-                    gameContainer.appendChild(chargeEffect);
-                    
-                    setTimeout(() => {
-                        chargeEffect.remove();
-                    }, 500);
-                    
-                    battery.element.remove();
-                    batteries.splice(i, 1);
-                    
-                    power = Math.min(100, power + POWER_INCREASE_AMOUNT);
-                    updatePowerDisplay();
-                    
-                    break;
-                }
-            }
+       function checkCollisions() {
+    const playerRect = {
+        left: 50,
+        right: 50 + PLAYER_WIDTH,
+        top: playerY,
+        bottom: playerY + PLAYER_HEIGHT
+    };
+    
+    // Проверка столкновений со стенами
+    for (const wall of walls) {
+        const wallRect = {
+            left: wall.x,
+            right: wall.x + WALL_WIDTH,
+            top: wall.isTop ? 0 : GAME_HEIGHT - wall.height,
+            bottom: wall.isTop ? wall.height : GAME_HEIGHT
+        };
+        
+        if (checkRectCollision(playerRect, wallRect)) {
+            crashDrone(wall.x, playerY);
+            return;
         }
+    }
+    
+    // Проверка сбора батареек
+    for (let i = 0; i < batteries.length; i++) {
+        const battery = batteries[i];
+        const batteryRect = {
+            left: battery.x,
+            right: battery.x + BATTERY_WIDTH,
+            top: battery.y,
+            bottom: battery.y + BATTERY_HEIGHT
+        };
+        
+        if (checkRectCollision(playerRect, batteryRect)) {
+            // Анимация подзарядки
+            const chargeEffect = document.createElement('div');
+            chargeEffect.className = 'charge-effect';
+            chargeEffect.style.left = `${playerRect.left - 20}px`;
+            chargeEffect.style.top = `${playerRect.top - 30}px`;
+            gameContainer.appendChild(chargeEffect);
+            
+            setTimeout(() => {
+                chargeEffect.remove();
+            }, 500);
+            
+            // Удаляем батарейку
+            battery.element.remove();
+            batteries.splice(i, 1);
+            
+            // Увеличиваем заряд
+            power = Math.min(100, power + POWER_INCREASE_AMOUNT);
+            updatePowerDisplay();
+            
+            break;
+        }
+    }
+}
         
         function checkRectCollision(rect1, rect2) {
             return rect1.left < rect2.right && 

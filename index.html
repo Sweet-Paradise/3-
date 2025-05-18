@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Исследователь - Игра с квадрокоптером</title>
     <style>
+        /* Общие стили */
         * {
             margin: 0;
             padding: 0;
@@ -18,6 +19,7 @@
             color: white;
         }
         
+        /* Стили для всех экранов */
         .screen {
             position: absolute;
             width: 100%;
@@ -36,6 +38,7 @@
             pointer-events: all;
         }
         
+        /* Экран приветствия */
         .welcome-screen {
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             z-index: 10;
@@ -85,6 +88,7 @@
             cursor: not-allowed;
         }
         
+        /* Игровое поле */
         .game-screen {
             background-color: #333;
             z-index: 5;
@@ -123,15 +127,13 @@
             left: 50px;
             top: 50%;
             transform: translateY(-50%);
-            transition: transform 0.1s ease-out;
         }
         
         .wall {
             position: absolute;
             width: 50px;
-            background-color: #8B4513;
-            background-image: linear-gradient(45deg, #8B4513 25%, #A0522D 25%, #A0522D 50%, #8B4513 50%, #8B4513 75%, #A0522D 75%, #A0522D 100%);
-            background-size: 20px 20px;
+            background-image: url('img/wall.png');
+            background-size: cover;
             z-index: 10;
         }
         
@@ -161,6 +163,7 @@
             z-index: 1;
         }
         
+        /* Экран результата и проигрыша */
         .result-screen, .gameover-screen {
             background: rgba(0, 0, 0, 0.8);
             z-index: 15;
@@ -192,6 +195,7 @@
             background-color: #45a049;
         }
         
+        /* Анимации */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -278,11 +282,6 @@
         const POWER_DECREASE_AMOUNT = 1;
         const POWER_INCREASE_AMOUNT = 5;
         
-        // Параметры плавного управления
-        const PLAYER_ACCELERATION = 0.2;
-        const PLAYER_MAX_SPEED = 5;
-        const PLAYER_FRICTION = 0.1;
-        
         // Элементы DOM
         const welcomeScreen = document.querySelector('.welcome-screen');
         const gameScreen = document.querySelector('.game-screen');
@@ -314,7 +313,7 @@
         let animationId;
         let isPaused = false;
         let playerY = GAME_HEIGHT / 2 - PLAYER_HEIGHT / 2;
-        let playerVelocity = 0;
+        let playerSpeed = 5;
         let keysPressed = {};
         
         // Инициализация игры
@@ -356,7 +355,6 @@
             batteries = [];
             backgroundPosition = 0;
             playerY = GAME_HEIGHT / 2 - PLAYER_HEIGHT / 2;
-            playerVelocity = 0;
             
             updatePlayerPosition();
             updatePowerDisplay();
@@ -390,8 +388,8 @@
                 return;
             }
             
-            // Обработка плавного управления
-            handleSmoothControls();
+            // Обработка управления
+            handleControls();
             
             // Движение фона
             backgroundPosition = (backgroundPosition + backgroundSpeed) % GAME_WIDTH;
@@ -430,31 +428,14 @@
             animationId = requestAnimationFrame(gameLoop);
         }
         
-        // Плавное управление
-        function handleSmoothControls() {
-            // Применяем ускорение при нажатии клавиш
-            if (keysPressed['w'] || keysPressed['ц']) { // Вверх
-                playerVelocity -= PLAYER_ACCELERATION;
+        // Обработка управления
+        function handleControls() {
+            if (keysPressed['w'] || keysPressed['ц']) { // W или Ц (русская раскладка)
+                playerY = Math.max(0, playerY - playerSpeed);
             }
-            if (keysPressed['s'] || keysPressed['ы']) { // Вниз
-                playerVelocity += PLAYER_ACCELERATION;
+            if (keysPressed['s'] || keysPressed['ы']) { // S или Ы (русская раскладка)
+                playerY = Math.min(GAME_HEIGHT - PLAYER_HEIGHT, playerY + playerSpeed);
             }
-            
-            // Ограничение максимальной скорости
-            playerVelocity = Math.max(-PLAYER_MAX_SPEED, Math.min(PLAYER_MAX_SPEED, playerVelocity));
-            
-            // Применяем "трение" для плавного замедления
-            if (!(keysPressed['w'] || keysPressed['ц'] || keysPressed['s'] || keysPressed['ы'])) {
-                if (playerVelocity > 0) {
-                    playerVelocity = Math.max(0, playerVelocity - PLAYER_FRICTION);
-                } else if (playerVelocity < 0) {
-                    playerVelocity = Math.min(0, playerVelocity + PLAYER_FRICTION);
-                }
-            }
-            
-            // Обновляем позицию с учетом скорости
-            playerY += playerVelocity;
-            playerY = Math.max(0, Math.min(GAME_HEIGHT - PLAYER_HEIGHT, playerY));
             
             updatePlayerPosition();
         }

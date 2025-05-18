@@ -316,7 +316,7 @@
         let playerSpeed = 5;
         let keysPressed = {};
 
-        // Новые параметры для плавного управления
+         // Новые параметры для плавного управления
         const PLAYER_ACCELERATION = 0.2;
         const PLAYER_MAX_SPEED = 5;
         const PLAYER_FRICTION = 0.1;
@@ -387,7 +387,7 @@
             generateInitialWalls();
         }
         
-         // Игровой цикл с плавным управлением
+       // Игровой цикл с плавным управлением
         function gameLoop() {
             if (!gameActive || isPaused) {
                 animationId = requestAnimationFrame(gameLoop);
@@ -397,12 +397,44 @@
             // Обработка управления с плавностью
             handleSmoothControls();
             
-            // (Остальная часть игрового цикла без изменений)
+            // Движение фона
+            backgroundPosition = (backgroundPosition + backgroundSpeed) % GAME_WIDTH;
+            background.style.transform = `translateX(-${backgroundPosition}px)`;
+            
+            // Движение стен
+            walls.forEach(wall => {
+                wall.x -= backgroundSpeed;
+                wall.element.style.left = `${wall.x}px`;
+                
+                // Удаляем стены, которые вышли за пределы экрана
+                if (wall.x + WALL_WIDTH < 0) {
+                    wall.element.remove();
+                    walls = walls.filter(w => w !== wall);
+                }
+            });
+            
+            // Движение батареек
+            batteries.forEach(battery => {
+                battery.x -= backgroundSpeed;
+                battery.element.style.left = `${battery.x}px`;
+                
+                // Удаляем батарейки, которые вышли за пределы экрана
+                if (battery.x + BATTERY_WIDTH < 0) {
+                    battery.element.remove();
+                    batteries = batteries.filter(b => b !== battery);
+                }
+            });
+            
+            // Проверка столкновений
+            checkCollisions();
+            
+            // Генерация новых стен и батареек
+            generateWallsAndBatteries();
+            
             animationId = requestAnimationFrame(gameLoop);
         }
         
-        // Новая функция плавного управления
-        function handleSmoothControls() {
+       function handleSmoothControls() {
             // Применяем ускорение при нажатии клавиш
             if (keysPressed['w'] || keysPressed['ц']) { // Вверх
                 playerVelocity -= PLAYER_ACCELERATION;

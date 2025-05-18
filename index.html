@@ -120,7 +120,7 @@
             position: absolute;
             width: 60px; /* Размер квадрокоптера */
             height: 40px;
-            background-image: url('drone.png');
+            background-image: url('img/drone.png');
             background-size: contain;
             background-repeat: no-repeat;
             z-index: 15;
@@ -142,7 +142,7 @@
             position: absolute;
             width: 30px;
             height: 50px;
-            background-image: url('battery.png');
+            background-image: url('img/battery.png');
             background-size: contain;
             background-repeat: no-repeat;
             z-index: 10;
@@ -158,7 +158,7 @@
             position: absolute;
             width: 200%;
             height: 100%;
-            background-image: url('background.png');
+            background-image: url('img/background.png');
             background-size: cover;
             background-repeat: repeat-x;
             z-index: 1;
@@ -211,7 +211,7 @@
             position: absolute;
             width: 60px;
             height: 60px;
-            background-image: url('explosion.png');
+            background-image: url('img/explosion.png');
             background-size: contain;
             animation: explode 0.5s forwards;
             z-index: 20;
@@ -221,7 +221,7 @@
             position: absolute;
             width: 100px;
             height: 100px;
-            background-image: url('charge.png');
+            background-image: url('img/charge.png');
             background-size: contain;
             animation: fadeIn 0.5s forwards;
             z-index: 20;
@@ -269,12 +269,6 @@
     </div>
 
     <script>
-        // Размеры изображений (в пикселях):
-        // - drone.png: 60x40 (квадрокоптер)
-        // - battery.png: 30x50 (батарейка)
-        // - explosion.png: 60x60 (анимация взрыва)
-        // - charge.png: 100x100 (анимация подзарядки)
-        // - background.png: 800x600 (фон игрового поля, должен быть seamless для повторения)
 
         // Константы игры
         const GAME_WIDTH = 800;
